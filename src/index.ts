@@ -37,10 +37,10 @@ app.get("/students", (req: Request, res: Response) => {
         let fillterd_ByProgram = fillterd_ById.filter(
           (s) => s.program === program,
         );
-        return res.json({ success: true, data: fillterd_ByProgram });
+        return res.json({ ok: true, data: fillterd_ByProgram });
       }
       return res.json({
-        success: true,
+        ok: true,
         data: fillterd_ById,
       });
     }
@@ -51,19 +51,19 @@ app.get("/students", (req: Request, res: Response) => {
         (student) => student.program === program,
       );
       return res.json({
-        success: true,
+        ok: true,
         data: filtered_students,
       });
     } else {
       return res.json({
-        success: true,
+        ok: true,
         count: students.length,
         data: students,
       });
     }
   } catch (err) {
     return res.json({
-      success: false,
+      ok: false,
       message: "Something is wrong, please try again",
       error: err,
     });
