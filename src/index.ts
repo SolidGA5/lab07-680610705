@@ -27,7 +27,7 @@ app.get("/", (req: Request, res: Response) => {
 
 // GET /students
 // get students (by program)
-app.get("/students", (req: Request, res: Response) => {
+app.get("/api/students", (req: Request, res: Response) => {
   try {
     const id = req.query.studentId;
     if (id != undefined) {
@@ -165,7 +165,7 @@ app.put("/students", (req: Request, res: Response) => {
 });
 
 // DELETE /students, body = {studentId}
-app.delete("/students", (req: Request, res: Response) => {
+app.delete("/api/students", (req: Request, res: Response) => {
   let removeStudent = req.body as Student;
   let can = zStudentDeleteBody.safeParse(removeStudent);
   if (!can.success) {
@@ -192,7 +192,7 @@ app.delete("/students", (req: Request, res: Response) => {
 });
 // GET /api/me
 
-app.get("/me", (req: Request, res: Response) => {
+app.get("/api/me", (req: Request, res: Response) => {
   let body = req.body as Student;
   return res.json({
     ok: true,
