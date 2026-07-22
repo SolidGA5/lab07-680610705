@@ -1,23 +1,24 @@
-import express, { type Request, type Response } from 'express';
+import express, { type Request, type Response } from "express";
 
 // import middleware
 import morgan from "morgan";
 
 // import database
-import { students } from '@db/db.js';
+import { students } from "@db/db.js";
 import { type Student, type Course } from "@libs/types.js";
 import {
   zStudentDeleteBody,
   zStudentPostBody,
   zStudentPutBody,
 } from "@libs/studentValidator.js";
+import { date, number, string, success } from "zod";
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 // use middleware
 app.use(morgan("dev", { immediate: false }));
-app.use(express.json());    // parses request's payload into 'req.body'
+app.use(express.json()); // parses request's payload into 'req.body'
 
 // Endpoints
 app.get("/", (req: Request, res: Response) => {
@@ -28,11 +29,26 @@ app.get("/", (req: Request, res: Response) => {
 // get students (by program)
 app.get("/students", (req: Request, res: Response) => {
   try {
-    const program = req.query.program;
+    const id = req.query.studentId;
+    if (id != undefined) {
+      let fillterd_ById = students.filter((s) => s.studentId === id);
+      const program = req.query.program;
+      if (program != undefined) {
+        let fillterd_ByProgram = fillterd_ById.filter(
+          (s) => s.program === program,
+        );
+        return res.json({ success: true, data: fillterd_ByProgram });
+      }
+      return res.json({
+        success: true,
+        data: fillterd_ById,
+      });
+    }
 
+    const program = req.query.program;
     if (program) {
       let filtered_students = students.filter(
-        (student) => student.program === program
+        (student) => student.program === program,
       );
       return res.json({
         success: true,
@@ -71,7 +87,7 @@ app.post("/students", (req: Request, res: Response) => {
 
     //check duplicate studentId
     const found = students.find(
-      (student) => student.studentId === body.studentId
+      (student) => student.studentId === body.studentId,
     );
     if (found) {
       return res.json({
@@ -118,7 +134,7 @@ app.put("/students", (req: Request, res: Response) => {
 
     //check duplicate studentId
     const foundIndex = students.findIndex(
-      (student) => student.studentId === body.studentId
+      (student) => student.studentId === body.studentId,
     );
 
     if (foundIndex === -1) {
@@ -150,12 +166,40 @@ app.put("/students", (req: Request, res: Response) => {
 
 // DELETE /students, body = {studentId}
 app.delete("/students", (req: Request, res: Response) => {
-  res.json({
-    message: "Implement this!"
-  })
+  let removeStudent = req.body as Student;
+  let can = zStudentDeleteBody.safeParse(removeStudent);
+  if (!can.success) {
+    return res.json({
+      ok: false,
+      message: "Student Id must contain 9 characters",
+    });
+  }
+  let x = students.find((s) => s.studentId === removeStudent.studentId);
+  if (x === undefined) {
+    return res.json({
+      ok: false,
+      message: "Student ID does not exist",
+    });
+  }
+  let index = students.findIndex(
+    (s) => s.studentId === removeStudent.studentId,
+  );
+  students.splice(index, 1);
+  return res.json({
+    success: true,
+    message: `Student Id ${removeStudent.studentId} has been deleted`,
+  });
 });
-
 // GET /api/me
+
+app.get("/me", (req: Request, res: Response) => {
+  let body = req.body as Student;
+  return res.json({
+    ok: true,
+    fullName: body.firstName + " " + body.lastName,
+    studendId: body.studentId,
+  });
+});
 
 app.listen(port, async () => {
   console.log(`🚀 Server running on http://localhost:${port}`);
