@@ -37,9 +37,9 @@ app.get("/students", (req: Request, res: Response) => {
         let fillterd_ByProgram = fillterd_ById.filter(
           (s) => s.program === program,
         );
-        return res.json({ ok: true, data: fillterd_ByProgram });
+        return res.status(200).json({ ok: true, data: fillterd_ByProgram });
       }
-      return res.json({
+      return res.status(200).json({
         ok: true,
         data: fillterd_ById,
       });
@@ -50,12 +50,12 @@ app.get("/students", (req: Request, res: Response) => {
       let filtered_students = students.filter(
         (student) => student.program === program,
       );
-      return res.json({
+      return res.status(200).json({
         ok: true,
         data: filtered_students,
       });
     } else {
-      return res.json({
+      return res.status(200).json({
         ok: true,
         count: students.length,
         data: students,
@@ -169,14 +169,14 @@ app.delete("/students", (req: Request, res: Response) => {
   let removeStudent = req.body as Student;
   let can = zStudentDeleteBody.safeParse(removeStudent);
   if (!can.success) {
-    return res.json({
+    return res.status(400).json({
       ok: false,
       message: "Student Id must contain 9 characters",
     });
   }
   let x = students.find((s) => s.studentId === removeStudent.studentId);
   if (x === undefined) {
-    return res.json({
+    return res.status(404).json({
       ok: false,
       message: "Student ID does not exist",
     });
@@ -185,7 +185,7 @@ app.delete("/students", (req: Request, res: Response) => {
     (s) => s.studentId === removeStudent.studentId,
   );
   students.splice(index, 1);
-  return res.json({
+  return res.status(200).json({
     success: true,
     message: `Student Id ${removeStudent.studentId} has been deleted`,
   });
